@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, AfterLoad, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('patients')
 export class Patient {
@@ -6,36 +6,36 @@ export class Patient {
 	public id?: number;
 
 	@Column({length: 255})
-	public name: string;
+	public name!: string;
 	
 	@Column({length: 12})
-	public uuid: string;
+	public uuid!: string;
 
 	@Column()
-	public phone_number: number;
+	public phone_number!: number;
 
 	@Column({length: 255})
-	public partner_name;
+	public partner_name!: string;
 
 	@Column()
-	public partner_phone_number: number;
+	public partner_phone_number!: number;
 
 	@Column({
 		type: 'enum',
-		enum: ['waiting', 'registering', 'attending'],
+		enum: ['waiting', 'registering', 'attending'] as const,
 		default: 'waiting'
 	})
-	public status: 'waiting' | 'registering' | 'attending';
+	public status!: 'waiting' | 'registering' | 'attending';
 
 	@Column()
-	public description: string;
+	public description!: string;
 
 	@Column({
 		type: 'enum',
-		enum: ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent']
+		enum: ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'] as const
 	})
-	public manchester_priority: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent';
+	public manchester_priority!: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent';
 
 	@Column()
-	public priority: number;
+	public priority!: number;
 };
