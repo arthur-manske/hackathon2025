@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-
 import { AppDataSource } from "../config/data-source";
-
 import { User } from "../entities/User";
-
 import { AuthService } from "../services/AuthService";
 
 declare global {
@@ -24,14 +21,15 @@ export function userAuthChecker() {
     if (!decoded) return next();
 
     try {
-        const user = AppDataSource.getRepository('users').findOne({where: {uuid: decoded.uuid}});
-        if (!user) return next();
+      const repo = AppDataSource.getRepository<User>(User);
+      const user = await repo.findOne({ where: { uuid: decoded.uuid } });
 
-        req.user = await user;
-        next();
+      if (!user) return next();
+      req.user = user;
+      return next();
     } catch (e) {
-        console.error("token ruim horrivel " + e);
-        return next();
+      console.error("token ruim horrivel", e);
+      return next();
     }
-  }
+  };
 }
