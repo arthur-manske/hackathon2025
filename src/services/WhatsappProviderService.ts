@@ -16,7 +16,7 @@ type RecvResponse = {
 };
 
 export class WhatsappProviderService {
-  private static const client                     = Twilio(TWILIO_API_KEY, TWILIO_API_SID);
+  private static client                           = Twilio(TWILIO_API_KEY, TWILIO_API_SID);
   private static receivedMessages: RecvResponse[] = [];
 
   static async send(msg: string, dst: string): Promise<SendResponse>
