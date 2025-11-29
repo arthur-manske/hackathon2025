@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
     type: "mysql",
     host: DB_HOST,
     port: Number(DB_PORT || "3306"),
-    username: DB_USERNAME,
+    username: DB_USERNAME || "avnadmin",
     password: DB_PASSWORD,
     database: DB_NAME,
     synchronize: true,
