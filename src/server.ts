@@ -11,13 +11,10 @@ import PatientRoutes from "./routes/PatientRoutes";
 const app:  Application = express();
 const port: number      = Number(process.env.PORT) || 3000;
 
-app.set('trust proxy', true);
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin:      process.env.CLIENT_ORIGIN || "https://hackathon2025-0y0f.onrender.com",
-    credentials: true
+    origin:      "*"
 }));
 
 app.use(helmet({

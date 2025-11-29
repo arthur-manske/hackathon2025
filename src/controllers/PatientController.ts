@@ -51,7 +51,8 @@ export class PatientController {
                 location: null
             });
 
-            return res.status(201).send();
+            delete patient.id;
+            return res.status(201).json(patient);
         } catch (e) {
             console.error(`ERROR: ${e}`);
             return res.status(500).json({ message: "Erro interno no servidor." });
