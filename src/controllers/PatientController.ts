@@ -97,7 +97,7 @@ export class PatientController {
             const patients = await PatientController.patientRepository.findAll({ where: filters });
            
             return res.status(200).json((patients).map((p) => { // Removido o segundo findAll
-                const clone: any = { uuid: p.uuid, name: p.name, status: p.status, manchester_prio: p.manchester_priority, specific_prio: p.priority, state: p.state, location: p.location };
+                const clone: any = { uuid: p.uuid, name: p.name, partner_name: p.partner_name, partner_phone_number: p.partner_phone_number, status: p.status, manchester_prio: p.manchester_priority, specific_prio: p.priority, state: p.state, location: p.location };
                 if (!req.user && (!req.patient || req.patient.uuid !== clone.uuid)) {
                     clone.state = clone.location = undefined;
                 }
