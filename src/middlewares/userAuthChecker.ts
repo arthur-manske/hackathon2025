@@ -12,8 +12,7 @@ declare global {
   }
 }
 
-export function userAuthChecker() {
-  return async (req: Request, res: Response, next: NextFunction) => {
+export function userAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
     if (!header || !header.startsWith("Bearer ")) {
       next();
@@ -39,5 +38,4 @@ export function userAuthChecker() {
     }
 
     next();
-  };
 }
