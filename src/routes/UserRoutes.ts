@@ -6,7 +6,7 @@ let router: Router = Router();
 
 router.post("/login",  UserController.login);
 
-//router.use(userAuthChecker);
+router.use(userAuthChecker);
 
 router.post("/logout", UserController.logout);
 

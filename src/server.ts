@@ -25,10 +25,6 @@ app.use((req, res, next) => {
 app.use("/patients", PatientRoutes);
 app.use("/users", UserRoutes);
 
-app.get("/", (_req, res) => {
-    res.status(201).json({message: "Server is up."});
-});
-
 app.use((_, res) => res.status(404).json({ message: "rota não encontrada" }));
 
 AppDataSource.initialize().then(() => {
