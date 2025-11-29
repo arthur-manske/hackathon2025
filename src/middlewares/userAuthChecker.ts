@@ -31,7 +31,7 @@ export function userAuthChecker() {
         next();
     } catch (e) {
         console.error("token ruim horrivel " + e);
-        return next;
+        return next();
     }
   }
 }
