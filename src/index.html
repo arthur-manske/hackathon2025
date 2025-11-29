@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TESTE LOGIN - PAIA HORIZONTAL</title>
+</head>
+<body style="font-family:monospace;background:#222;color:#eee;padding:12px">
+<h1 style="color:#f66">PAIA TEST PAGE</h1>
+
+<label>Base URL: <input id="base" value="https://hackathon2025-0y0f.onrender.com" style="width:520px"></label>
+<hr>
+
+<div style="display:flex;gap:20px;align-items:flex-start">
+
+  <div style="background:#111;padding:12px;border:1px solid #333;width:420px">
+    <h2 style="margin:0 0 8px 0;color:#8cf">Patient</h2>
+
+    <div>
+      <label>UUID <input id="p_uuid" style="width:100%"></label>
+    </div>
+    <div>
+      <label>Password <input id="p_pass" style="width:100%"></label>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="login('patient')" style="padding:6px">Login Patient</button>
+      <button onclick="logout('patient')" style="padding:6px">Logout Patient</button>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="nextPatient()" style="padding:6px">GET /patients/next-patient</button>
+      <button onclick="queryPatients()" style="padding:6px">GET /patients (query)</button>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Stored patient token</label>
+      <textarea id="patient_token" style="width:100%;height:64px"></textarea>
+    </div>
+  </div>
+
+  <div style="background:#111;padding:12px;border:1px solid #333;width:420px">
+    <h2 style="margin:0 0 8px 0;color:#8cf">User</h2>
+
+    <div>
+      <label>Username <input id="u_name" style="width:100%"></label>
+    </div>
+    <div>
+      <label>Password <input id="u_pass" style="width:100%"></label>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="login('user')" style="padding:6px">Login User</button>
+      <button onclick="logout('user')" style="padding:6px">Logout User</button>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Stored user token</label>
+      <textarea id="user_token" style="width:100%;height:64px"></textarea>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+<div>
+  <h3 style="color:#8cf;margin:0 0 8px 0">Response (raw)</h3>
+  <pre id="out" style="background:#000;color:#bdf;padding:12px;height:300px;overflow:auto;border:1px solid #333"></pre>
+</div>
+
+<script>
+async function login(kind) {
+  const base = document.getElementById('base').value.replace(/\/+$/,'');
+  let url = '', body = {};
+  if (kind === 'patient') {
+    url = base + '/patients/login';
+    body = {
+      uuid: document.getElementById('p_uuid').value,
+      password: document.getElementById('p_pass').value
+    };
+  } else {
+    url = base + '/users/login';
+    body = {
+      username: document.getElementById('u_name').value,
+      password: document.getElementById('u_pass').value
+    };
+  }
+  show('POST ' + url + '\n\n' + JSON.stringify(body,null,2));
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    });
+    const txt = await res.text();
+    try { const j = JSON.parse(txt); storeToken(kind,j); showResponse(res.status,j); }
+    catch(e){ showResponse(res.status,txt); }
+  } catch(e){
+    show('ERROR: ' + e);
+  }
+}
+
+function storeToken(kind, obj) {
+  if (!obj || !obj.token) return;
+  if (kind === 'patient') document.getElementById('patient_token').value = obj.token;
+  else document.getElementById('user_token').value = obj.token;
+}
+
+async function logout(kind) {
+  const base = document.getElementById('base').value.replace(/\/+$/,'');
+  const token = (kind === 'patient') ? document.getElementById('patient_token').value.trim() : document.getElementById('user_token').value.trim();
+  if (!token) { show('no token'); return; }
+  const url = (kind==='patient') ? base + '/patients/logout' : base + '/users/logout';
+  show('POST ' + url);
+  try {
+    const res = await fetch(url, { method:'POST', headers: { 'Authorization': 'Bearer ' + token } });
+    const j = await res.json().catch(()=>null);
+    showResponse(res.status,j || '[no-json]');
+    if (res.ok) {
+      if (kind==='patient') document.getElementById('patient_token').value = '';
+      else document.getElementById('user_token').value = '';
+    }
+  } catch(e){
+    show('ERROR: ' + e);
+  }
+}
+
+async function nextPatient() {
+  const base = document.getElementById('base').value.replace(/\/+$/,'');
+  const url = base + '/patients/next-patient';
+  show('GET ' + url);
+  try {
+    const res = await fetch(url);
+    const j = await res.json().catch(()=>null);
+    showResponse(res.status,j || '[no-json]');
+  } catch(e){ show('ERROR: ' + e); }
+}
+
+async function queryPatients() {
+  const base = document.getElementById('base').value.replace(/\/+$/,'');
+  const url = base + '/patients';
+  // try patient token first, then user token
+  const pTok = document.getElementById('patient_token').value.trim();
+  const uTok = document.getElementById('user_token').value.trim();
+  const token = pTok || uTok;
+  const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+  show('GET ' + url + (token ? ' (auth)' : ' (public)'));
+  try {
+    const res = await fetch(url, { headers });
+    const j = await res.json().catch(()=>null);
+    showResponse(res.status,j || '[no-json]');
+  } catch(e){ show('ERROR: ' + e); }
+}
+
+function show(text) {
+  const o = document.getElementById('out');
+  o.textContent = text;
+}
+
+function showResponse(status, obj) {
+  const o = document.getElementById('out');
+  o.textContent = 'STATUS: ' + status + '\n\n' + (typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2));
+}
+</script>
+</body>
+</html>
