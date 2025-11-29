@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 
 import { PatientRepository } from "../repository/PatientRepository";
 
+import { WhatsappProviderService } from "../services/WhatsappProviderService";
+
 export class PatientController {
     private static patientRepository = new PatientRepository();
 
@@ -44,10 +46,12 @@ export class PatientController {
                 status: 'waiting',
                 description,
                 manchester_priority,
-                priority
+                priority,
+                state: null,
+                location: null
             });
 
-            return res.status(201).json(patient);
+            return res.status(201).send();
         } catch (e) {
             console.error(`ERROR: ${e}`);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -57,7 +61,7 @@ export class PatientController {
     static async listAll(req: Request, res: Response): Promise<Response> {
         try {
             const patients = (await PatientController.patientRepository.findAll()).map(
-                p => { delete p.id; return p; }
+                p => { delete p.id; delete p.state; delete p.location; return p; }
             );
 
             return res.status(200).json(patients);
@@ -72,7 +76,7 @@ export class PatientController {
             const { uuid } = req.params;
             const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient) return res.status(404).json({ message: "Paciente não encontrado!" });
-            delete patient.id;
+            delete patient.id; delete patient.state; delete patient.location;
             return res.status(200).json(patient);
         } catch (e) {
             console.error(`ERROR: ${e}`);
@@ -86,20 +90,51 @@ export class PatientController {
             const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient) return res.status(404).json({ message: "Paciente não encontrado!" });
 
-            const { name, phone_number, partner_name, partner_phone_number, status, description, manchester_priority, priority } = req.body;
+            const { phone_number, partner_name, partner_phone_number, status, description, manchester_priority, priority, state, location } = req.body;
 
-            if (name) patient.name = name;
             if (phone_number) patient.phone_number = phone_number;
             if (partner_name) patient.partner_name = partner_name;
             if (partner_phone_number) patient.partner_phone_number = partner_phone_number;
-            if (status) patient.status = status;
+
+            /*** Básico */
+            if (status && patient.status !== status) {
+                patient.status = status;
+                let msg = '';
+                switch (status) {
+                    case 'waiting':
+                        msg = `Olá ${patient.name}, você está aguardando atendimento.`;
+                        break;
+                    case 'called':
+                        msg = `Olá ${patient.name}, é a sua vez de ser atendido!`;
+                        break;
+                    case 'attended':
+                        msg = `Olá ${patient.name}, seu atendimento foi concluído.`;
+                        break;
+                    default:
+                        msg = `Atualização de status: ${status}`;
+                }
+
+                if (patient.phone_number) {
+                    WhatsappProviderService.send(msg, patient.phone_number)
+                        .then(r => console.log('Aviso enviado:', r))
+                        .catch(err => console.error('Erro ao enviar aviso:', err));
+                }
+                
+                if (patient.partner_phone_number) {
+                    WhatsappProviderService.send(msg, patient.phone_number)
+                        .then(r => console.log('Aviso enviado:', r))
+                        .catch(err => console.error('Erro ao enviar aviso:', err));
+                }
+            }
+
             if (description) patient.description = description;
             if (manchester_priority) patient.manchester_priority = manchester_priority;
             if (priority !== undefined) patient.priority = priority;
+            if (state) patient.state = state;
+            if (location) patient.location = location;
 
             const updated = await PatientController.patientRepository.save(patient);
-            delete updated.id;
-            return res.status(200).json(updated);
+            return res.status(204).send();
         } catch (e) {
             console.error(`ERROR: ${e}`);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -147,7 +182,7 @@ export class PatientController {
             });
 
             const nextPatient = { ...waitingPatients[0] };
-            delete nextPatient.id; // 🔥 remove id interno ANTES de retornar
+            delete nextPatient.id; delete nextPatient.state; delete nextPatient.location;
 
             return res.status(200).json(nextPatient);
         } catch (e) {

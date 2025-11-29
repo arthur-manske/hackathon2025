@@ -38,4 +38,10 @@ export class Patient {
 
 	@Column()
 	public priority!: number;
+
+	@Column()
+	public state!: string | null;
+
+	@Column()
+	public location!: string | null;
 };

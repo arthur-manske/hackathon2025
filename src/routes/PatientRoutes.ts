@@ -9,8 +9,6 @@ router.get("/next-patient", PatientController.nextPatient);
 router.get("/:uuid",        PatientController.findByUUID);
 router.post("/",            PatientController.create);
 
-// router.use(patientAuthMiddleware);
-
 router.put("/:uuid",            PatientController.update);
 router.delete("/:uuid",         PatientController.delete);
 
