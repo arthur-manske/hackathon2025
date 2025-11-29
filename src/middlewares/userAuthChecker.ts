@@ -26,7 +26,7 @@ export function userAuthChecker(req: Request, res: Response, next: NextFunction)
     }
 
     try {
-      const user = await new UserRepository().findByUUID(decoded.uuid);
+      const user = new UserRepository().findByUUID(decoded.uuid);
       
       if (!user) {
         next();
