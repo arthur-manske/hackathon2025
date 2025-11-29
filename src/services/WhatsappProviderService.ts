@@ -1,7 +1,7 @@
 // src/services/WhatsappProviderService.ts
 import Twilio from 'twilio';
 
-import { TWILIO_API_KEY, TWILIO_API_SID } "../config/twilio";
+import { TWILIO_API_KEY, TWILIO_API_SID } from "../config/twilio";
 
 type SendResponse = {
     success: boolean;
