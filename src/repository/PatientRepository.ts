@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { FindManyOptions, Repository } from "typeorm";
 
 import { AppDataSource } from "../config/data-source";
 
@@ -18,9 +18,9 @@ export class PatientRepository {
         return this.repository.save(patient);
     }
 
-    public async findAll(): Promise<Patient[]>
+    public async findAll(opt?: FindManyOptions): Promise<Patient[]>
     {
-        return this.repository.find();
+        return this.repository.find(opt);
     }
 
     public async findById(id: number): Promise<Patient | null>

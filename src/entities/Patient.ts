@@ -11,6 +11,9 @@ export class Patient {
 	@Column({length: 12})
 	public uuid!: string;
 
+	@Column({length: 3})
+	public password: string;
+
 	@Column()
 	public phone_number!: string;
 

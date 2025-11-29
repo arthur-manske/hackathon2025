@@ -1,15 +1,22 @@
 import { Router } from "express";
-
 import { PatientController } from "../controllers/PatientController";
 
-let router: Router = Router();
+import { patientAuthChecker } from "../middlewares/patientAuthChecker";
+import { userAuthChecker }    from "../middlewares/userAuthChecker";
 
-router.get("/",             PatientController.listAll);
+const router: Router = Router();
+
+router.post("/login",  PatientController.login);
+router.post("/logout", patientAuthChecker, PatientController.logout);
 router.get("/next-patient", PatientController.nextPatient);
-router.get("/:uuid",        PatientController.findByUUID);
-router.post("/",            PatientController.create);
 
-router.put("/:uuid",            PatientController.update);
-router.delete("/:uuid",         PatientController.delete);
+router.use(patientAuthChecker);
+router.use(userAuthChecker);
+
+router.get("/", PatientController.query);
+
+router.post("/",        userAuthChecker, PatientController.create);
+router.patch("/:uuid",  userAuthChecker, PatientController.update);
+router.delete("/:uuid", userAuthChecker, PatientController.delete);
 
 export default router;
