@@ -6,7 +6,7 @@ import { Patient } from "../entities/Patient";
 export async function patientAuthChecker(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   req.patient = null;
-  
+
   if (!header || !header.startsWith("Bearer ")) {
     next();
     return;
@@ -20,8 +20,11 @@ export async function patientAuthChecker(req: Request, res: Response, next: Next
 
   try {
     const patient = await new PatientRepository().findByUUID(decoded.uuid);
-    if (!patient) return res.status(401).json({ message: "Token inválido." });
-    req.body.patient = patient;
+    if (!patient) {
+      next();
+      return;
+    }
+    req.patient = patient;
     next();
   } catch (e) {
     console.error(e);
