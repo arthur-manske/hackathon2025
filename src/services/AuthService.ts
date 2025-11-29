@@ -12,9 +12,9 @@ export class AuthService {
         } as SignOptions);
     }
 
-    public static fromToken(token: AuthToken): any | Object | null {
+    public static fromToken(token: AuthToken): any | null {
         try {
-            return jwt.verify(token as string, JWT_SECRET) as any;
+            return jwt.verify(token as string, JWT_SECRET as string);
         } catch {
             return null;
         }

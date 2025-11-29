@@ -1,5 +1,4 @@
 import express, { Application } from 'express';
-import cookieParser             from "cookie-parser";
 import cors                     from 'cors';
 import helmet                   from 'helmet';
 import rateLimit                from 'express-rate-limit';
@@ -12,8 +11,16 @@ import UserRoutes from "./routes/UserRoutes";
 const app:  Application = express();
 const port: number      = Number(process.env.PORT) || 3000;
 
-app.use(cookieParser());
 app.use(express.json());
+app.use(cors({
+	origin: "*"
+}))
+
+app.use((req, res, next) => {
+  console.log("REQ >", req.method, req.url);
+  res.on("finish", () => console.log("RES <", req.method, req.url, res.statusCode));
+  next();
+});
 
 app.use("/patients", PatientRoutes);
 app.use("/users", UserRoutes);
@@ -21,6 +28,8 @@ app.use("/users", UserRoutes);
 app.get("/", (_req, res) => {
     res.status(201).json({message: "Server is up."});
 });
+
+app.use((_, res) => res.status(404).json({ message: "rota não encontrada" }));
 
 AppDataSource.initialize().then(() => {
     console.log("Data source has been initialized!");
