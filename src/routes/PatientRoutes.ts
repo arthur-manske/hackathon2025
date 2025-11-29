@@ -4,7 +4,7 @@ import { PatientController } from "../controllers/PatientController";
 import { patientAuthChecker } from "../middlewares/patientAuthChecker";
 import { userAuthChecker }    from "../middlewares/userAuthChecker";
 
-const router: Router = Router();
+let router: Router = Router();
 
 router.post("/login",  PatientController.login);
 router.post("/logout", patientAuthChecker, PatientController.logout);

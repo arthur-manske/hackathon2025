@@ -2,160 +2,192 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>TESTE LOGIN - PAIA HORIZONTAL</title>
+<title>TEST LOGIN & CREATE (PAIA)</title>
 </head>
-<body style="font-family:monospace;background:#222;color:#eee;padding:12px">
-<h1 style="color:#f66">PAIA TEST PAGE</h1>
+<body style="font-family:monospace;background:#111;color:#eee;padding:14px">
+<h1 style="color:#e55;margin:0 0 12px 0">PAIA TEST PAGE — USERS & PATIENTS</h1>
 
-<label>Base URL: <input id="base" value="https://hackathon2025-0y0f.onrender.com" style="width:520px"></label>
-<hr>
+<label>Base URL: <input id="base" value="https://hackathon2025-0y0f.onrender.com" style="width:640px"></label>
+<hr style="border-color:#222;margin:12px 0">
 
-<div style="display:flex;gap:20px;align-items:flex-start">
+<div style="display:flex;gap:18px;flex-wrap:wrap">
 
-  <div style="background:#111;padding:12px;border:1px solid #333;width:420px">
-    <h2 style="margin:0 0 8px 0;color:#8cf">Patient</h2>
-
-    <div>
-      <label>UUID <input id="p_uuid" style="width:100%"></label>
-    </div>
-    <div>
-      <label>Password <input id="p_pass" style="width:100%"></label>
+  <div style="background:#0b0b0b;padding:12px;border:1px solid #222;width:420px">
+    <h2 style="margin:0 0 8px 0;color:#8cf">User - create / login</h2>
+    <div><label>username <input id="cu_name" style="width:100%"></label></div>
+    <div><label>password <input id="cu_pass" style="width:100%"></label></div>
+    <div><label>role <select id="cu_role" style="width:100%"><option value="regular">regular</option><option value="root">root</option></select></label></div>
+    <div style="margin-top:8px">
+      <button onclick="createUser()" style="padding:6px">Create User (needs user token)</button>
+      <button onclick="login('user')" style="padding:6px">Login User</button>
+      <button onclick="logout('user')" style="padding:6px">Logout User</button>
     </div>
     <div style="margin-top:8px">
+      <label>stored user token</label>
+      <textarea id="user_token" style="width:100%;height:60px"></textarea>
+    </div>
+  </div>
+
+  <div style="background:#0b0b0b;padding:12px;border:1px solid #222;width:420px">
+    <h2 style="margin:0 0 8px 0;color:#8cf">Patient - create / login</h2>
+    <div><label>name <input id="cp_name" style="width:100%"></label></div>
+    <div><label>password <input id="cp_pass" style="width:100%"></label></div>
+    <div><label>phone_number <input id="cp_phone" style="width:100%"></label></div>
+    <div><label>manchester_priority <select id="cp_manch"><option>immediate</option><option>very-urgent</option><option>urgent</option><option selected>standard</option><option>non-urgent</option></select></label></div>
+    <div><label>priority <input id="cp_prio" type="number" value="1" style="width:100%"></label></div>
+    <div style="margin-top:8px">
+      <button onclick="createPatient()" style="padding:6px">Create Patient (requires user token)</button>
       <button onclick="login('patient')" style="padding:6px">Login Patient</button>
       <button onclick="logout('patient')" style="padding:6px">Logout Patient</button>
     </div>
     <div style="margin-top:8px">
+      <label>stored patient token</label>
+      <textarea id="patient_token" style="width:100%;height:60px"></textarea>
+    </div>
+  </div>
+
+  <div style="background:#0b0b0b;padding:12px;border:1px solid #222;width:420px">
+    <h2 style="margin:0 0 8px 0;color:#8cf">Quick actions</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button onclick="nextPatient()" style="padding:6px">GET /patients/next-patient</button>
-      <button onclick="queryPatients()" style="padding:6px">GET /patients (query)</button>
+      <button onclick="queryPatients()" style="padding:6px">GET /patients</button>
+      <button onclick="queryUsers()" style="padding:6px">GET /users</button>
     </div>
-
     <div style="margin-top:12px">
-      <label>Stored patient token</label>
-      <textarea id="patient_token" style="width:100%;height:64px"></textarea>
+      <label>raw response</label>
+      <pre id="out" style="background:#000;color:#bdf;padding:10px;height:260px;overflow:auto;border:1px solid #222"></pre>
     </div>
   </div>
 
-  <div style="background:#111;padding:12px;border:1px solid #333;width:420px">
-    <h2 style="margin:0 0 8px 0;color:#8cf">User</h2>
-
-    <div>
-      <label>Username <input id="u_name" style="width:100%"></label>
-    </div>
-    <div>
-      <label>Password <input id="u_pass" style="width:100%"></label>
-    </div>
-    <div style="margin-top:8px">
-      <button onclick="login('user')" style="padding:6px">Login User</button>
-      <button onclick="logout('user')" style="padding:6px">Logout User</button>
-    </div>
-
-    <div style="margin-top:12px">
-      <label>Stored user token</label>
-      <textarea id="user_token" style="width:100%;height:64px"></textarea>
-    </div>
-  </div>
-
-</div>
-
-<hr>
-<div>
-  <h3 style="color:#8cf;margin:0 0 8px 0">Response (raw)</h3>
-  <pre id="out" style="background:#000;color:#bdf;padding:12px;height:300px;overflow:auto;border:1px solid #333"></pre>
 </div>
 
 <script>
-async function login(kind) {
-  const base = document.getElementById('base').value.replace(/\/+$/,'');
-  let url = '', body = {};
-  if (kind === 'patient') {
-    url = base + '/patients/login';
-    body = {
-      uuid: document.getElementById('p_uuid').value,
-      password: document.getElementById('p_pass').value
-    };
-  } else {
-    url = base + '/users/login';
-    body = {
-      username: document.getElementById('u_name').value,
-      password: document.getElementById('u_pass').value
-    };
-  }
-  show('POST ' + url + '\n\n' + JSON.stringify(body,null,2));
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify(body)
-    });
-    const txt = await res.text();
-    try { const j = JSON.parse(txt); storeToken(kind,j); showResponse(res.status,j); }
-    catch(e){ showResponse(res.status,txt); }
-  } catch(e){
-    show('ERROR: ' + e);
-  }
+function baseUrl(){ return document.getElementById('base').value.replace(/\/+$/,''); }
+function show(text){ document.getElementById('out').textContent = text; }
+function showResp(status, obj){ show('STATUS: '+status + '\n\n' + (typeof obj === 'string' ? obj : JSON.stringify(obj,null,2))); }
+function tokenHeader(kind){
+  const t = (kind==='user') ? document.getElementById('user_token').value.trim() : document.getElementById('patient_token').value.trim();
+  return t ? { 'Authorization':'Bearer '+t } : {};
 }
 
-function storeToken(kind, obj) {
-  if (!obj || !obj.token) return;
-  if (kind === 'patient') document.getElementById('patient_token').value = obj.token;
-  else document.getElementById('user_token').value = obj.token;
-}
-
-async function logout(kind) {
-  const base = document.getElementById('base').value.replace(/\/+$/,'');
-  const token = (kind === 'patient') ? document.getElementById('patient_token').value.trim() : document.getElementById('user_token').value.trim();
-  if (!token) { show('no token'); return; }
-  const url = (kind==='patient') ? base + '/patients/logout' : base + '/users/logout';
-  show('POST ' + url);
+async function createUser(){
+  const url = baseUrl() + '/users';
+  const body = {
+    username: document.getElementById('cu_name').value,
+    password: document.getElementById('cu_pass').value,
+    role: document.getElementById('cu_role').value
+  };
+  const headers = Object.assign({'Content-Type':'application/json'}, tokenHeader('user'));
+  show('POST '+url+'\n\n'+JSON.stringify(body,null,2));
   try {
-    const res = await fetch(url, { method:'POST', headers: { 'Authorization': 'Bearer ' + token } });
+    const res = await fetch(url, { method:'POST', headers, body: JSON.stringify(body) });
     const j = await res.json().catch(()=>null);
-    showResponse(res.status,j || '[no-json]');
-    if (res.ok) {
-      if (kind==='patient') document.getElementById('patient_token').value = '';
-      else document.getElementById('user_token').value = '';
-    }
-  } catch(e){
-    show('ERROR: ' + e);
-  }
+    showResp(res.status, j || '[no-json]');
+  } catch(e){ show('ERROR: '+e); }
 }
 
-async function nextPatient() {
-  const base = document.getElementById('base').value.replace(/\/+$/,'');
-  const url = base + '/patients/next-patient';
-  show('GET ' + url);
+async function createPatient(){
+  const url = baseUrl() + '/patients';
+  const body = {
+    name: document.getElementById('cp_name').value,
+    password: document.getElementById('cp_pass').value,
+    phone_number: document.getElementById('cp_phone').value || '0000000000',
+    partner_name: null,
+    partner_phone_number: null,
+    description: 'created-via-test-ui',
+    manchester_priority: document.getElementById('cp_manch').value,
+    priority: Number(document.getElementById('cp_prio').value || 1)
+  };
+  const headers = Object.assign({'Content-Type':'application/json'}, tokenHeader('user'));
+  show('POST '+url+'\n\n'+JSON.stringify(body,null,2));
+  try {
+    const res = await fetch(url, { method:'POST', headers, body: JSON.stringify(body) });
+    const j = await res.json().catch(()=>null);
+    showResp(res.status, j || '[no-json]');
+  } catch(e){ show('ERROR: '+e); }
+}
+
+async function login(kind){
+  const url = baseUrl() + (kind==='user' ? '/users/login' : '/patients/login');
+  let body = {};
+  if (kind==='user') {
+    body = { username: document.getElementById('cu_name').value, password: document.getElementById('cu_pass').value };
+  } else {
+    // patient login by uuid + password — try to use last created uuid if response provided earlier
+    const maybeUuid = await guessLastPatientUUID();
+    body = { uuid: maybeUuid || document.getElementById('cp_name').value, password: document.getElementById('cp_pass').value };
+  }
+  show('POST '+url+'\n\n'+JSON.stringify(body,null,2));
+  try {
+    const res = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+    const j = await res.json().catch(()=>null);
+    showResp(res.status, j || '[no-json]');
+    if (j && j.token){
+      if (kind==='user') document.getElementById('user_token').value = j.token;
+      else document.getElementById('patient_token').value = j.token;
+    }
+  } catch(e){ show('ERROR: '+e); }
+}
+
+async function logout(kind){
+  const url = baseUrl() + (kind==='user' ? '/users/logout' : '/patients/logout');
+  const headers = tokenHeader(kind);
+  if (!Object.keys(headers).length){ show('no token for '+kind); return; }
+  show('POST '+url);
+  try {
+    const res = await fetch(url, { method:'POST', headers });
+    const j = await res.json().catch(()=>null);
+    showResp(res.status, j || '[no-json]');
+    if (res.ok) {
+      if (kind==='user') document.getElementById('user_token').value='';
+      else document.getElementById('patient_token').value='';
+    }
+  } catch(e){ show('ERROR: '+e); }
+}
+
+async function nextPatient(){
+  const url = baseUrl() + '/patients/next-patient';
+  show('GET '+url);
   try {
     const res = await fetch(url);
     const j = await res.json().catch(()=>null);
-    showResponse(res.status,j || '[no-json]');
-  } catch(e){ show('ERROR: ' + e); }
+    showResp(res.status, j || '[no-json]');
+  } catch(e){ show('ERROR: '+e); }
 }
 
-async function queryPatients() {
-  const base = document.getElementById('base').value.replace(/\/+$/,'');
-  const url = base + '/patients';
-  // try patient token first, then user token
-  const pTok = document.getElementById('patient_token').value.trim();
-  const uTok = document.getElementById('user_token').value.trim();
-  const token = pTok || uTok;
-  const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-  show('GET ' + url + (token ? ' (auth)' : ' (public)'));
+async function queryPatients(){
+  const url = baseUrl() + '/patients';
+  const headers = tokenHeader('patient');
+  show('GET '+url + (headers.Authorization ? ' (patient auth)' : ' (public or user auth if provided)'));
+  try {
+    // try patient token, else try user token if present
+    const finalHeaders = Object.assign({}, headers);
+    if (!finalHeaders.Authorization && document.getElementById('user_token').value.trim()){
+      finalHeaders.Authorization = 'Bearer ' + document.getElementById('user_token').value.trim();
+    }
+    const res = await fetch(url, { headers: finalHeaders });
+    const j = await res.json().catch(()=>null);
+    showResp(res.status, j || '[no-json]');
+  } catch(e){ show('ERROR: '+e); }
+}
+
+async function queryUsers(){
+  const url = baseUrl() + '/users';
+  const headers = tokenHeader('user');
+  show('GET '+url);
   try {
     const res = await fetch(url, { headers });
     const j = await res.json().catch(()=>null);
-    showResponse(res.status,j || '[no-json]');
-  } catch(e){ show('ERROR: ' + e); }
+    showResp(res.status, j || '[no-json]');
+  } catch(e){ show('ERROR: '+e); }
 }
 
-function show(text) {
-  const o = document.getElementById('out');
-  o.textContent = text;
-}
-
-function showResponse(status, obj) {
-  const o = document.getElementById('out');
-  o.textContent = 'STATUS: ' + status + '\n\n' + (typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2));
+// helper to try guess last patient uuid from last response in pre (very naive)
+async function guessLastPatientUUID(){
+  // scans current out for a uuid-like token (very naive: 36 chars or pattern)
+  const txt = document.getElementById('out').textContent || '';
+  const m = txt.match(/"uuid"\s*:\s*"([^"]{8,40})"/);
+  return m ? m[1] : null;
 }
 </script>
 </body>

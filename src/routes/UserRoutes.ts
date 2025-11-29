@@ -2,7 +2,7 @@ import { Router } from "express";
 import { UserController } from "../controllers/UserController";
 import { userAuthChecker } from "../middlewares/userAuthChecker";
 
-const router: Router = Router();
+let router: Router = Router();
 
 router.post("/login",  UserController.login);
 router.post("/logout", userAuthChecker, UserController.logout);
