@@ -6,9 +6,9 @@ let router: Router = Router();
 
 // Rotas públicas
 router.get("/",              PatientController.listAll);
+router.get("/next-patient",  PatientController.nextPatient);
 router.get("/:id",           PatientController.findById);
 router.post("/",             PatientController.create);
-router.get("/next-patient",  PatientController.nextPatient);
 
 // Rotas que exigem identificação de paciente (opcional, por exemplo, para updates/remover)
 // Se futuramente quiser middleware de autenticação ou autorização, pode adicionar igual ao UserRouter
