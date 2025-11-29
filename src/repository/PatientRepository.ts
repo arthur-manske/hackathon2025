@@ -32,7 +32,7 @@ export class PatientRepository {
         return this.repository.findOneBy({ phone_number });
     }
 
-    public async findByStatus(status: 'waiting' | 'registering' | 'attending'): Promise<Patient[]> {
+    public async findByStatus(status: 'waiting' | 'attending'): Promise<Patient[]> {
         return this.repository.find({ where: { status } });
     }
 
