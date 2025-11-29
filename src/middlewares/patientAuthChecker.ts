@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export function patientAuthChecker(req: Request, res: Response, next: NextFunction) {
+export async function patientAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
     if (!header || !header.startsWith("Bearer ")) {
       next();
@@ -26,7 +26,7 @@ export function patientAuthChecker(req: Request, res: Response, next: NextFuncti
     }
 
     try {
-      const patient = new PatientRepository().findByUUID(decoded.uuid);
+      const patient = await new PatientRepository().findByUUID(decoded.uuid);
       if (!patient) return res.status(401).json({ message: "Token inválido." });
       req.patient = patient;
       next();

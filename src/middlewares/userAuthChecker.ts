@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export function userAuthChecker(req: Request, res: Response, next: NextFunction) {
+export async function userAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
     if (!header || !header.startsWith("Bearer ")) {
       next();
@@ -26,7 +26,7 @@ export function userAuthChecker(req: Request, res: Response, next: NextFunction)
     }
 
     try {
-      const user = new UserRepository().findByUUID(decoded.uuid);
+      const user = await new UserRepository().findByUUID(decoded.uuid);
       
       if (!user) {
         next();
