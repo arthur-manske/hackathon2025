@@ -5,7 +5,7 @@ import { User } from "../entities/User";
 
 export async function userAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
-    (req.body as { user?: User | null }).user = null;
+    req.user = null;
     
     if (!header || !header.startsWith("Bearer ")) {
       next();
@@ -25,7 +25,7 @@ export async function userAuthChecker(req: Request, res: Response, next: NextFun
         next();
         return;
       }
-      req.body.user = user;
+      req.user = user;
     } catch (e) {
       console.error("token ruim horrivel", e);
     }

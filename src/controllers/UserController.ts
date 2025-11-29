@@ -8,7 +8,7 @@ export class UserController {
 
     static async create(req: Request, res: Response): Promise<Response> {
         try {
-            //if (!req.body.user)
+            //if (!req.user)
             //  return res.status(403).json({ message: "Acesso negado." });
 
             const { username, password, role } = req.body;
@@ -65,7 +65,7 @@ export class UserController {
 
     static async logout(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.body.user)
+            if (!req.user)
                 return res.status(403).json({ message: "Acesso negado." });
             return res.status(200).json({ message: "Logout realizado com sucesso." });
         } catch (e) {
@@ -76,7 +76,7 @@ export class UserController {
 
     static async query(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.body.user) return res.status(403).json({ message: "Acesso negado." });
+            if (!req.user) return res.status(403).json({ message: "Acesso negado." });
 
             const filters: any = { ...req.query };
             delete filters.password;
@@ -99,7 +99,7 @@ export class UserController {
 
     static async update(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.body.user)
+            if (!req.user)
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
@@ -123,7 +123,7 @@ export class UserController {
 
     static async delete(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.body.user)
+            if (!req.user)
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
