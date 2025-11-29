@@ -25,7 +25,7 @@ export function patientAuthChecker() {
     if (!decoded) return next();
 
     try {
-        const patient = AppDataSource.getRepository(Patient).findOne({where: {uuid: decoded.uuid}});
+        const patient = AppDataSource.getRepository('patients').findOne({where: {uuid: decoded.uuid}});
         if (!patient) return res.status(401).json({message: "Token inválida."});
 
         req.patient = await patient;

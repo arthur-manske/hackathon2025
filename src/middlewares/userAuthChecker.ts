@@ -24,7 +24,7 @@ export function userAuthChecker() {
     if (!decoded) return next();
 
     try {
-        const user = AppDataSource.getRepository(User).findOne({where: {uuid: decoded.uuid}});
+        const user = AppDataSource.getRepository('users').findOne({where: {uuid: decoded.uuid}});
         if (!user) return next();
 
         req.user = await user;
