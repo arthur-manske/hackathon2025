@@ -16,7 +16,7 @@ app.set('trust proxy', true);
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin:      process.env.CLIENT_ORIGIN || "https://siga.onrender.com",
+    origin:      process.env.CLIENT_ORIGIN || "https://hackathon2025-0y0f.onrender.com",
     credentials: true
 }));
 
