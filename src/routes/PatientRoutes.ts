@@ -7,7 +7,7 @@ import { userAuthChecker }    from "../middlewares/userAuthChecker";
 let router: Router = Router();
 
 router.post("/login",  PatientController.login);
-router.get("/next-patient", PatientController.nextPatient);
+router.get("/queue", PatientController.queue);
 
 router.use(patientAuthChecker);
 router.use(userAuthChecker);

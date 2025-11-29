@@ -160,7 +160,7 @@ export class PatientController {
         }
     }
 
-    static async nextPatient(req: Request, res: Response): Promise<Response> {
+    static async queue(req: Request, res: Response): Promise<Response> {
         try {
             const patients = await PatientController.patientRepository.findAll();
             const waiting = patients.filter(p => p.status === 'waiting');
