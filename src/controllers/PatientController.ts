@@ -47,6 +47,7 @@ export class PatientController {
                 priority
             });
 
+            delete patient.id;
             return res.status(201).json(patient);
         } catch (e) {
             console.error(`ERROR: ${e}`);
