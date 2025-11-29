@@ -6,29 +6,29 @@ import { PatientRepository } from "../repository/PatientRepository";
 export class PatientController {
     private static patientRepository = new PatientRepository();
 
-private static generatePatientUUID(
-    manchester_priority: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent',
-    priority: number
-): string {
+    private static generatePatientUUID(
+        manchester_priority: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent',
+        priority: number
+    ): string {
 
-    const manchesterMap: Record<string, string> = {
-        'immediate': 'I',
-        'very-urgent': 'V',
-        'urgent': 'U',
-        'standard': 'S',
-        'non-urgent': 'N'
-    };
+        const manchesterMap: Record<string, string> = {
+            'immediate': 'I',
+            'very-urgent': 'V',
+            'urgent': 'U',
+            'standard': 'S',
+            'non-urgent': 'N'
+        };
 
-    const mp = manchesterMap[manchester_priority];
+        const mp = manchesterMap[manchester_priority];
 
-    // 4 caracteres aleatórios (A-Z, 0-9)
-    const random = Array.from({ length: 4 })
-        .map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-            .charAt(Math.floor(Math.random() * 36)))
-        .join("");
+        // 4 caracteres aleatórios (A-Z, 0-9)
+        const random = Array.from({ length: 4 })
+            .map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                .charAt(Math.floor(Math.random() * 36)))
+            .join("");
 
-    return `${random}${mp}${priority}`;
-}
+        return `${random}${mp}${priority}`;
+    }
 
     static async create(req: Request, res: Response): Promise<Response> {
         try {
@@ -125,32 +125,31 @@ private static generatePatientUUID(
     static async nextPatient(req: Request, res: Response): Promise<Response> {
         try {
             const patients = await PatientController.patientRepository.findAll();
-
-            // Filtrar apenas pacientes esperando atendimento
             const waitingPatients = patients.filter(p => p.status === 'waiting');
-
-            if (waitingPatients.length === 0)
+            
+            if (!waitingPatients?.length)
                 return res.status(404).json({ message: "Não há pacientes esperando atendimento." });
+            
+            if (waitingPatients.length === 0)
+                return res.status(200).json(waitingPatients[0]);
 
-            // Ordenar por prioridade Manchester, depois por priority numérica (desc), depois por tempo de chegada (id asc)
-            const manchesterOrder = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
-waitingPatients.sort((a, b) => {
-    const manchesterOrder = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
+            waitingPatients.sort((a, b) => {
+                const manchesterOrder = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
 
-    const manchesterDiff =
-        manchesterOrder.indexOf(a.manchester_priority) -
-        manchesterOrder.indexOf(b.manchester_priority);
+                const manchesterDiff =
+                    manchesterOrder.indexOf(a.manchester_priority) -
+                    manchesterOrder.indexOf(b.manchester_priority);
 
-    if (manchesterDiff !== 0) return manchesterDiff;
+                if (manchesterDiff !== 0) return manchesterDiff;
 
-    const priorityA = typeof a.priority === "number" ? a.priority : -999;
-    const priorityB = typeof b.priority === "number" ? b.priority : -999;
+                const priorityA = typeof a.priority === "number" ? a.priority : -999;
+                const priorityB = typeof b.priority === "number" ? b.priority : -999;
 
-    const priorityDiff = priorityB - priorityA;
-    if (priorityDiff !== 0) return priorityDiff;
+                const priorityDiff = priorityB - priorityA;
+                if (priorityDiff !== 0) return priorityDiff;
 
-    return (a.id ?? 0) - (b.id ?? 0);
-});
+                return (a.id ?? 0) - (b.id ?? 0);
+            });
 
             const nextPatient = waitingPatients[0];
             return res.status(200).json(nextPatient);
