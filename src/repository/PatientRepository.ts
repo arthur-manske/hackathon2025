@@ -28,7 +28,7 @@ export class PatientRepository {
         return this.repository.findOneBy({ id });
     }
 
-    public async findByPhoneNumber(phone_number: number): Promise<Patient | null>
+    public async findByPhoneNumber(phone_number: string): Promise<Patient | null>
     {
         return this.repository.findOneBy({ phone_number });
     }

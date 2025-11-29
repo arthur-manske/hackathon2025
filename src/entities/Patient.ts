@@ -12,13 +12,13 @@ export class Patient {
 	public uuid!: string;
 
 	@Column()
-	public phone_number!: number;
+	public phone_number!: string;
 
 	@Column({length: 255})
 	public partner_name!: string;
 
 	@Column()
-	public partner_phone_number!: number;
+	public partner_phone_number!: string;
 
 	@Column({
 		type: 'enum',
