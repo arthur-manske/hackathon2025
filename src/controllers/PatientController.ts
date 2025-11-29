@@ -56,7 +56,10 @@ export class PatientController {
 
     static async listAll(req: Request, res: Response): Promise<Response> {
         try {
-            const patients = await PatientController.patientRepository.findAll();
+            const patients = (await PatientController.patientRepository.findAll()).map(
+                p => { delete p.id; return p; }
+            );
+
             return res.status(200).json(patients);
         } catch (e) {
             console.error(`ERROR: ${e}`);
@@ -64,11 +67,12 @@ export class PatientController {
         }
     }
 
-    static async findById(req: Request, res: Response): Promise<Response> {
+    static async findByUUID(req: Request, res: Response): Promise<Response> {
         try {
-            const { id } = req.params;
-            const patient = await PatientController.patientRepository.findById(Number(id));
+            const { uuid } = req.params;
+            const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient) return res.status(404).json({ message: "Paciente não encontrado!" });
+            delete patient.id;
             return res.status(200).json(patient);
         } catch (e) {
             console.error(`ERROR: ${e}`);
@@ -78,8 +82,8 @@ export class PatientController {
 
     static async update(req: Request, res: Response): Promise<Response> {
         try {
-            const { id } = req.params;
-            const patient = await PatientController.patientRepository.findById(Number(id));
+            const { uuid } = req.params;
+            const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient) return res.status(404).json({ message: "Paciente não encontrado!" });
 
             const { name, phone_number, partner_name, partner_phone_number, status, description, manchester_priority, priority } = req.body;
@@ -94,6 +98,7 @@ export class PatientController {
             if (priority !== undefined) patient.priority = priority;
 
             const updated = await PatientController.patientRepository.save(patient);
+            delete updated.id;
             return res.status(200).json(updated);
         } catch (e) {
             console.error(`ERROR: ${e}`);
@@ -103,8 +108,8 @@ export class PatientController {
 
     static async delete(req: Request, res: Response): Promise<Response> {
         try {
-            const { id } = req.params;
-            const patient = await PatientController.patientRepository.findById(Number(id));
+            const { uuid } = req.params;
+            const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient) return res.status(404).json({ message: "Paciente não encontrado!" });
 
             await PatientController.patientRepository.remove(patient);

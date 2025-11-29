@@ -28,6 +28,11 @@ export class PatientRepository {
         return this.repository.findOneBy({ id });
     }
 
+    public async findByUUID(uuid: string): Promise<Patient | null>
+    {
+        return this.repository.findOneBy({ uuid });
+    }
+
     public async findByPhoneNumber(phone_number: string): Promise<Patient | null>
     {
         return this.repository.findOneBy({ phone_number });
