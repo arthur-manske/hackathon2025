@@ -124,12 +124,9 @@ export class PatientController {
         try {
             const patients = await PatientController.patientRepository.findAll();
             const waitingPatients = patients.filter(p => p.status === 'waiting');
-            
-            if (!waitingPatients?.length)
-                return res.status(404).json({ message: "Não há pacientes esperando atendimento." });
-            
+
             if (waitingPatients.length === 0)
-                return res.status(200).json(waitingPatients[0]);
+                return res.status(404).json({ message: "Não há pacientes esperando atendimento." });
 
             waitingPatients.sort((a, b) => {
                 const manchesterOrder = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
@@ -140,8 +137,8 @@ export class PatientController {
 
                 if (manchesterDiff !== 0) return manchesterDiff;
 
-                const priorityA = typeof a.priority === "number" ? a.priority : -999;
-                const priorityB = typeof b.priority === "number" ? b.priority : -999;
+                const priorityA = Number(a.priority) || 0;
+                const priorityB = Number(b.priority) || 0;
 
                 const priorityDiff = priorityB - priorityA;
                 if (priorityDiff !== 0) return priorityDiff;
@@ -149,7 +146,9 @@ export class PatientController {
                 return (a.id ?? 0) - (b.id ?? 0);
             });
 
-            const nextPatient = waitingPatients[0];
+            const nextPatient = { ...waitingPatients[0] };
+            delete nextPatient.id; // 🔥 remove id interno ANTES de retornar
+
             return res.status(200).json(nextPatient);
         } catch (e) {
             console.error(`ERROR: ${e}`);

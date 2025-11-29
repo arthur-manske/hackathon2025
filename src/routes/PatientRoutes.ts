@@ -5,7 +5,7 @@ let router: Router = Router();
 
 router.get("/",              PatientController.listAll);
 router.get("/next-patient",  PatientController.nextPatient);
-router.get("/:uuid",           PatientController.findById);
+router.get("/:uuid",           PatientController.findByUUID);
 router.post("/",             PatientController.create);
 
 // router.use(patientAuthMiddleware);
