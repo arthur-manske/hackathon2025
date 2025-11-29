@@ -14,7 +14,7 @@ const port: number      = Number(process.env.PORT) || 3000;
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin:      ""
+    origin:      "*"
 }));
 
 app.use(helmet({
