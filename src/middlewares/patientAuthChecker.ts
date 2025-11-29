@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../config/data-source";
 import { Patient } from "../entities/Patient";
 import { AuthService } from "../services/AuthService";
+import { PatientRepository } from "../repository/PatientRepository";
 
 declare global {
   namespace Express {
@@ -26,9 +27,7 @@ export function patientAuthChecker() {
     }
 
     try {
-      const repo = AppDataSource.getRepository<Patient>(Patient);
-      const patient = await repo.findOne({ where: { uuid: decoded.uuid } });
-
+      const patient = await new PatientRepository().findByUUID(decoded.uuid);
       if (!patient) return res.status(401).json({ message: "Token inválido." });
       req.patient = patient;
       next();

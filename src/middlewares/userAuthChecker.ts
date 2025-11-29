@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../config/data-source";
 import { User } from "../entities/User";
 import { AuthService } from "../services/AuthService";
+import { UserRepository } from "../repository/UserRepository";
 
 declare global {
   namespace Express {
@@ -26,9 +27,8 @@ export function userAuthChecker() {
     }
 
     try {
-      const repo = AppDataSource.getRepository<User>(User);
-      const user = await repo.findOne({ where: { uuid: decoded.uuid } });
-
+      const user = await new UserRepository().findByUUID(decoded.uuid);
+      
       if (!user) {
         next();
         return;
