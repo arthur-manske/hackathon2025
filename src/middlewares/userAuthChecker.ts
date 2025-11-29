@@ -4,6 +4,8 @@ import { UserRepository } from "../repository/UserRepository";
 
 export async function userAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
+    req.body.user = null;
+    
     if (!header || !header.startsWith("Bearer ")) {
       next();
       return;

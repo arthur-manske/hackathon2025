@@ -5,7 +5,7 @@ import { User } from "../entities/User";
 export class UserRepository {
     private repository: Repository<User>;
 
-    constructor() {
+    public constructor() {
         this.repository = AppDataSource.getRepository(User);
     }
 

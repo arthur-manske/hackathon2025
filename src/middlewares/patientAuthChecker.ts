@@ -4,6 +4,8 @@ import { PatientRepository } from "../repository/PatientRepository";
 
 export async function patientAuthChecker(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
+  req.body.patient = null;
+  
   if (!header || !header.startsWith("Bearer ")) {
     next();
     return;
