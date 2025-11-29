@@ -134,16 +134,23 @@ private static generatePatientUUID(
 
             // Ordenar por prioridade Manchester, depois por priority numérica (desc), depois por tempo de chegada (id asc)
             const manchesterOrder = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
+waitingPatients.sort((a, b) => {
+    const manchesterOrder = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
 
-            waitingPatients.sort((a, b) => {
-                const manchesterDiff = manchesterOrder.indexOf(a.manchester_priority) - manchesterOrder.indexOf(b.manchester_priority);
-                if (manchesterDiff !== 0) return manchesterDiff;
+    const manchesterDiff =
+        manchesterOrder.indexOf(a.manchester_priority) -
+        manchesterOrder.indexOf(b.manchester_priority);
 
-                const priorityDiff = b.priority - a.priority;
-                if (priorityDiff !== 0) return priorityDiff;
+    if (manchesterDiff !== 0) return manchesterDiff;
 
-                return (a.id ?? 0) - (b.id ?? 0); // menor id = chegou primeiro
-            });
+    const priorityA = typeof a.priority === "number" ? a.priority : -999;
+    const priorityB = typeof b.priority === "number" ? b.priority : -999;
+
+    const priorityDiff = priorityB - priorityA;
+    if (priorityDiff !== 0) return priorityDiff;
+
+    return (a.id ?? 0) - (b.id ?? 0);
+});
 
             const nextPatient = waitingPatients[0];
             return res.status(200).json(nextPatient);
