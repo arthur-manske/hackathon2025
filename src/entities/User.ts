@@ -1,5 +1,6 @@
 import { BeforeInsert, BeforeUpdate, AfterLoad, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+import { randomUUID } from "crypto";
 import * as bcrypt from 'bcryptjs';
 
 @Entity('users')
@@ -7,7 +8,7 @@ export class User {
     @PrimaryGeneratedColumn()
     public id?: number;
 
-    @Column({ type: "char", length: 36, unique: true, default: () => "UUID()" })
+    @Column({ type: "char", length: 36, unique: true, default: () => `'${randomUUID()}'` })
     public uuid: string;
 
     @Column({ length: 255, unique: true })
@@ -20,6 +21,11 @@ export class User {
     public role: 'regular' | 'root';
 
     private previous_password!: string;
+
+    @BeforeInsert()
+private setUUID(): void {
+    if (!this.uuid) this.uuid = randomUUID();
+}
 
     @BeforeInsert()
     @BeforeUpdate()
