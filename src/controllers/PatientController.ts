@@ -6,6 +6,30 @@ import { PatientRepository } from "../repository/PatientRepository";
 export class PatientController {
     private static patientRepository = new PatientRepository();
 
+private static generatePatientUUID(
+    manchester_priority: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent',
+    priority: number
+): string {
+
+    const manchesterMap: Record<string, string> = {
+        'immediate': 'I',
+        'very-urgent': 'V',
+        'urgent': 'U',
+        'standard': 'S',
+        'non-urgent': 'N'
+    };
+
+    const mp = manchesterMap[manchester_priority];
+
+    // 4 caracteres aleatórios (A-Z, 0-9)
+    const random = Array.from({ length: 4 })
+        .map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            .charAt(Math.floor(Math.random() * 36)))
+        .join("");
+
+    return `${random}${mp}${priority}`;
+}
+
     static async create(req: Request, res: Response): Promise<Response> {
         try {
             const { name, phone_number, partner_name, partner_phone_number, description, manchester_priority, priority } = req.body;
@@ -15,6 +39,7 @@ export class PatientController {
 
             const patient = await PatientController.patientRepository.createAndSave({
                 name,
+                uuid: PatientController.generatePatientUUID(manchester_priority, priority),
                 phone_number,
                 partner_name,
                 partner_phone_number,
