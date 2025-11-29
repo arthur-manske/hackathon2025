@@ -18,7 +18,7 @@ export class PatientController {
 
     static async create(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.user)
+            if (!req.body.user)
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { name, password, phone_number, partner_name, partner_phone_number, description, manchester_priority, priority } = req.body;
@@ -76,7 +76,7 @@ export class PatientController {
 
     static async logout(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.patient)
+            if (!req.body.patient)
                 return res.status(403).json({ message: "Acesso negado." });
             return res.status(200).json({ message: "Logout realizado com sucesso." });
         } catch (e) {
@@ -90,15 +90,15 @@ export class PatientController {
             const filters = req.query;
             delete filters.id;
 
-            if (req.patient)
-                filters.uuid = req.patient.uuid;
+            if (req.body.patient)
+                filters.uuid = req.body.patient.uuid;
 
             const patients = await this.patientRepository.findAll(filters);
             const sanitized = patients.map(p => {
                 const clone = { ...p };
                 delete clone.id;
                 delete clone.password;
-                if (!req.user && (!req.patient || req.patient.uuid !== clone.uuid)) {
+                if (!req.body.user && (!req.body.patient || req.body.patient.uuid !== clone.uuid)) {
                     delete clone.state;
                     delete clone.location;
                 }
@@ -114,7 +114,7 @@ export class PatientController {
 
     static async update(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.user)
+            if (!req.body.user)
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
@@ -144,7 +144,7 @@ export class PatientController {
 
     static async delete(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.user)
+            if (!req.body.user)
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
@@ -181,7 +181,7 @@ export class PatientController {
                 const clone = { ...p };
                 delete clone.id;
                 delete clone.password;
-                if (!req.user && (!req.patient || req.patient.uuid !== clone.uuid)) {
+                if (!req.body.user && (!req.body.patient || req.body.patient.uuid !== clone.uuid)) {
                     delete clone.state;
                     delete clone.location;
                 }

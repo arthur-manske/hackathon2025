@@ -1,16 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { AppDataSource } from "../config/data-source";
-import { User } from "../entities/User";
 import { AuthService } from "../services/AuthService";
 import { UserRepository } from "../repository/UserRepository";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: User;
-    }
-  }
-}
 
 export async function userAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
@@ -32,7 +22,7 @@ export async function userAuthChecker(req: Request, res: Response, next: NextFun
         next();
         return;
       }
-      req.user = user;
+      req.body.user = user;
     } catch (e) {
       console.error("token ruim horrivel", e);
     }
