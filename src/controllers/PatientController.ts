@@ -165,7 +165,7 @@ export class PatientController {
             const patients = await this.patientRepository.findAll();
             const waiting = patients.filter(p => p.status === 'waiting');
 
-            if (waiting.length === 0)
+            if (!waiting?.length || !patients?.length)
                 return res.status(404).json({ message: "Não há pacientes esperando atendimento." });
 
             waiting.sort((a, b) => {

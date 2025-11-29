@@ -41,12 +41,10 @@ export class UserController {
                 return res.status(400).json({ message: "Campos obrigatórios não fornecidos!" });
 
             const user = await this.userRepository.findByUsername(username);
-            if (!user)
-                return res.status(401).json({ message: "Credenciais inválidas." });
+            if (!user) return res.status(401).json({ message: "Credenciais inválidas." });
 
             const match = await bcrypt.compare(password, user.password);
-            if (!match)
-                return res.status(401).json({ message: "Credenciais inválidas." });
+            if (!match) return res.status(401).json({ message: "Credenciais inválidas." });
 
             const token = AuthService.tokenFrom({
                 uuid: user.uuid,
@@ -78,14 +76,13 @@ export class UserController {
 
     static async query(req: Request, res: Response): Promise<Response> {
         try {
-            if (!req.body.user)
-                return res.status(403).json({ message: "Acesso negado." });
+            if (!req.body.user) return res.status(403).json({ message: "Acesso negado." });
 
             const filters = req.query;
             delete filters.password;
             delete filters.id;
 
-            const users = await this.userRepository.findAll(filters);
+            const users = (await this.userRepository.findAll(filters));
             const sanitized = users.map(u => {
                 const clone = { ...u };
                 delete clone.id;

@@ -8,8 +8,8 @@ export class User {
     @PrimaryGeneratedColumn()
     public id?: number;
 
-    @Column({ type: "char", length: 36, unique: true, default: () => `'${randomUUID()}'` })
-    public uuid: string;
+    @Column({ type: "char", length: 36, unique: true})
+    public uuid: string = randomUUID();
 
     @Column({ length: 255, unique: true })
     public username!: string;
@@ -23,6 +23,7 @@ export class User {
     private previous_password!: string;
 
     @BeforeInsert()
+    @BeforeUpdate()
 private setUUID(): void {
     if (!this.uuid) this.uuid = randomUUID();
 }
