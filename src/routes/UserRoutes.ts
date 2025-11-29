@@ -5,9 +5,10 @@ import { userAuthChecker } from "../middlewares/userAuthChecker";
 let router: Router = Router();
 
 router.post("/login",  UserController.login);
-router.post("/logout", userAuthChecker, UserController.logout);
 
-router.use(userAuthChecker);
+//router.use(userAuthChecker);
+
+router.post("/logout", UserController.logout);
 
 router.get("/",        UserController.query);
 router.post("/",       UserController.create);
