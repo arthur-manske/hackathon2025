@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PatientRepository } from "../repository/PatientRepository";
 import { AuthService } from "../services/AuthService";
+import { In } from 'typeorm';
 
 export class PatientController {
     private static patientRepository = new PatientRepository();
@@ -9,7 +10,7 @@ export class PatientController {
         manchester_priority: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent',
         priority: number
     ): string {
-        const map = { immediate: 'I', 'very-urgent': 'V', urgent: 'U', standard: 'S', 'non-urgent': 'N' };
+        const map = { immediate: 'I', 'very-urgent': 'V', urgent: 'U', standard: 'S', 'non-urgent': 'N', 'undefined': '.' };
         const r = Array.from({ length: 4 })
             .map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(Math.floor(Math.random() * 36)))
             .join("");
@@ -87,9 +88,15 @@ export class PatientController {
 
             delete filters.id;
 
+            // FIX: Se 'status' for um array (enviado via ?status=a&status=b),
+            // aplicamos o operador TypeORM 'In' para traduzir para WHERE IN (...)
+            if (Array.isArray(filters.status)) {
+                filters.status = In(filters.status);
+            }
+
             const patients = await PatientController.patientRepository.findAll({ where: filters });
-            
-            return res.status(200).json((await PatientController.patientRepository.findAll({where: filters})).map((p) => {
+           
+            return res.status(200).json((patients).map((p) => { // Removido o segundo findAll
                 const clone: any = { uuid: p.uuid, name: p.name, status: p.status, manchester_prio: p.manchester_priority, specific_prio: p.priority, state: p.state, location: p.location };
                 if (!req.user && (!req.patient || req.patient.uuid !== clone.uuid)) {
                     clone.state = clone.location = undefined;
