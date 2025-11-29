@@ -14,22 +14,30 @@ declare global {
 export function userAuthChecker() {
   return async (req: Request, res: Response, next: NextFunction) => {
     const header = req.headers.authorization;
-    if (!header || !header.startsWith("Bearer "))
-      return next();
+    if (!header || !header.startsWith("Bearer ")) {
+      next();
+      return;
+    }
 
     const decoded: any = AuthService.fromToken(header.split(" ")[1]);
-    if (!decoded) return next();
+    if (!decoded) {
+      next();
+      return;
+    }
 
     try {
       const repo = AppDataSource.getRepository<User>(User);
       const user = await repo.findOne({ where: { uuid: decoded.uuid } });
 
-      if (!user) return next();
+      if (!user) {
+        next();
+        return;
+      }
       req.user = user;
-      return next();
     } catch (e) {
       console.error("token ruim horrivel", e);
-      return next();
     }
+
+    next();
   };
 }

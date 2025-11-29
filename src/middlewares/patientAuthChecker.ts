@@ -14,11 +14,16 @@ declare global {
 export function patientAuthChecker() {
   return async (req: Request, res: Response, next: NextFunction) => {
     const header = req.headers.authorization;
-    if (!header || !header.startsWith("Bearer "))
-      return next();
+    if (!header || !header.startsWith("Bearer ")) {
+      next();
+      return;
+    }
 
     const decoded: any = AuthService.fromToken(header.split(" ")[1]);
-    if (!decoded) return next();
+    if (!decoded) {
+      next();
+      return;
+    }
 
     try {
       const repo = AppDataSource.getRepository<Patient>(Patient);
@@ -26,10 +31,10 @@ export function patientAuthChecker() {
 
       if (!patient) return res.status(401).json({ message: "Token inválido." });
       req.patient = patient;
-      return next();
+      next();
     } catch (e) {
       console.error(e);
-      return next();
+      next();
     }
   };
 }
