@@ -87,13 +87,13 @@ export class PatientController {
 
     static async query(req: Request, res: Response): Promise<Response> {
         try {
-            const filters = req.query;
+            const filters: any = { ...req.query };
             delete filters.id;
 
             if (req.body.patient)
                 filters.uuid = req.body.patient.uuid;
 
-            const patients = await this.patientRepository.findAll(filters);
+            const patients = await this.patientRepository.findAll({ where: filters });
             const sanitized = patients.map(p => {
                 const clone = { ...p };
                 delete clone.id;

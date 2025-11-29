@@ -5,19 +5,19 @@ export class Patient {
 	@PrimaryGeneratedColumn()
 	public id?: number;
 
-	@Column({length: 255})
+	@Column({ length: 255 })
 	public name!: string;
-	
-	@Column({length: 12})
+
+	@Column({ length: 12 })
 	public uuid!: string;
 
-	@Column({length: 3})
-	public password: string;
+	@Column({ length: 3 })
+	public password!: string;
 
 	@Column()
 	public phone_number!: string;
 
-	@Column({length: 255})
+	@Column({ length: 255 })
 	public partner_name!: string;
 
 	@Column()
@@ -42,9 +42,9 @@ export class Patient {
 	@Column()
 	public priority!: number;
 
-	@Column()
+	@Column({ nullable: true })
 	public state!: string | null;
 
-	@Column()
+	@Column({ nullable: true })
 	public location!: string | null;
 };

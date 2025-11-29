@@ -78,7 +78,7 @@ export class UserController {
         try {
             if (!req.body.user) return res.status(403).json({ message: "Acesso negado." });
 
-            const filters = req.query;
+            const filters: any = { ...req.query };
             delete filters.password;
             delete filters.id;
 
