@@ -163,17 +163,45 @@ export class PatientController {
     static async queue(req: Request, res: Response): Promise<Response> {
         try {
             const patients = await PatientController.patientRepository.findAll();
-            const waiting = patients.filter(p => p.status === 'waiting');
+            const waiting = patients.filter(p => p.status === "waiting");
 
-            if (!waiting?.length || !patients?.length)
+            if (!waiting?.length)
                 return res.status(404).json({ message: "Não há pacientes esperando atendimento." });
 
+            const order = ["immediate", "very-urgent", "urgent", "standard", "non-urgent"];
+            const maxTimes: Record<string, number> = {
+                "immediate": 5 * 60_000,      // 5 minutos
+                "very-urgent": 10 * 60_000,   // 10 minutos
+                "urgent": 30 * 60_000,        // 30 minutos
+                "standard": 75 * 60_000,      // 75 minutos
+                "non-urgent": 150 * 60_000    // 150 minutos
+            };
+
+            const now = Date.now();
+
             waiting.sort((a, b) => {
-                const order = ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'];
-                const diff = order.indexOf(a.manchester_priority) - order.indexOf(b.manchester_priority);
-                if (diff !== 0) return diff;
+                const idxA = order.indexOf(a.manchester_priority);
+                const idxB = order.indexOf(b.manchester_priority);
+
+                const waitA = now - new Date(a.created_at).getTime();
+                const waitB = now - new Date(b.created_at).getTime();
+
+                const maxA = maxTimes[a.manchester_priority];
+                const maxB = maxTimes[b.manchester_priority];
+
+                const overA = waitA / maxA;
+                const overB = waitB / maxB;
+
+                if (overA >= 1 && overB < 1) return -1;
+                if (overB >= 1 && overA < 1) return 1;
+
+                if (idxA !== idxB) return idxA - idxB;
+
+                if (overA !== overB) return overB - overA;
+
                 const prioDiff = (Number(b.priority) || 0) - (Number(a.priority) || 0);
                 if (prioDiff !== 0) return prioDiff;
+
                 return (a.id ?? 0) - (b.id ?? 0);
             });
 

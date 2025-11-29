@@ -11,6 +11,9 @@ export class Patient {
 	@Column({ length: 12 })
 	public uuid!: string;
 
+	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	public created_at!: Date;
+
 	@Column({ length: 3 })
 	public password!: string;
 
