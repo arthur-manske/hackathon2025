@@ -1,6 +1,5 @@
-// src/controllers/patient.controller.ts
 import { Request, Response } from "express";
-import { Patient } from "../entities/Patient";
+
 import { PatientRepository } from "../repository/PatientRepository";
 
 export class PatientController {
@@ -21,7 +20,6 @@ export class PatientController {
 
         const mp = manchesterMap[manchester_priority];
 
-        // 4 caracteres aleatórios (A-Z, 0-9)
         const random = Array.from({ length: 4 })
             .map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
                 .charAt(Math.floor(Math.random() * 36)))
@@ -56,7 +54,6 @@ export class PatientController {
         }
     }
 
-    // Listar todos pacientes
     static async listAll(req: Request, res: Response): Promise<Response> {
         try {
             const patients = await PatientController.patientRepository.findAll();
@@ -67,7 +64,6 @@ export class PatientController {
         }
     }
 
-    // Buscar paciente por ID
     static async findById(req: Request, res: Response): Promise<Response> {
         try {
             const { id } = req.params;
@@ -80,7 +76,6 @@ export class PatientController {
         }
     }
 
-    // Atualizar paciente
     static async update(req: Request, res: Response): Promise<Response> {
         try {
             const { id } = req.params;
@@ -106,7 +101,6 @@ export class PatientController {
         }
     }
 
-    // Remover paciente
     static async delete(req: Request, res: Response): Promise<Response> {
         try {
             const { id } = req.params;
@@ -121,7 +115,6 @@ export class PatientController {
         }
     }
 
-    // Próximo paciente a ser atendido
     static async nextPatient(req: Request, res: Response): Promise<Response> {
         try {
             const patients = await PatientController.patientRepository.findAll();
