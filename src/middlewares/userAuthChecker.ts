@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/AuthService";
 import { UserRepository } from "../repository/UserRepository";
+import { User } from "../entities/User";
 
 export async function userAuthChecker(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
-    req.body.user = null;
+    (req.body as { user?: User | null }).user = null;
     
     if (!header || !header.startsWith("Bearer ")) {
       next();
