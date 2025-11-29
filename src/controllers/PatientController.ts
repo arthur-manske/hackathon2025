@@ -171,6 +171,15 @@ export class PatientController {
                     manchesterOrder.indexOf(a.manchester_priority) -
                     manchesterOrder.indexOf(b.manchester_priority);
 
+                /*
+                 *** Considerar tempo máximo de cada um dos Manchester
+                 * 1. Imediato: até 5 minutos.
+                 * 2. Muito urgente: até 10 minutos
+                 * 3. Urgente: até 30 minutos.
+                 * 4. Padrão: até 75 minutos.
+                 * 5. Não-urgente: 150 minutos.
+                */
+
                 if (manchesterDiff !== 0) return manchesterDiff;
 
                 const priorityA = Number(a.priority) || 0;
