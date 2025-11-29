@@ -8,8 +8,8 @@ export class UserController {
 
     static async create(req: Request, res: Response): Promise<Response> {
         try {
-            //if (!req.user)
-            //  return res.status(403).json({ message: "Acesso negado." });
+            if (!req.user)
+              return res.status(403).json({ message: "Acesso negado." });
 
             const { username, password, role } = req.body;
             if (!username || !password)
