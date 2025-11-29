@@ -14,26 +14,6 @@ const port: number      = Number(process.env.PORT) || 3000;
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({
-    origin:      "*"
-}));
-
-app.use(helmet({
-	contentSecurityPolicy: {
-		directives: {
-			defaultSrc: ["'self'"]
-		}
-	},
-	crossOriginEmbedderPolicy: false
-}));
-
-app.use(rateLimit({
-	windowMs:        15 * 60 * 1000,
-	max:             100,
-	standardHeaders: true,
-	legacyHeaders:   false,
-	message: { message: "Muitas requisições. Tente novamente mais tarde." }
-}));
 
 app.use("/patients", PatientRoutes);
 app.use("/users", UserRoutes);
