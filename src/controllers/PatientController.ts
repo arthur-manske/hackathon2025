@@ -25,9 +25,9 @@ export class PatientController {
             if (!name || !password || !phone_number || !description || !manchester_priority || priority === undefined)
                 return res.status(400).json({ message: "Campos obrigatórios não fornecidos!" });
 
-            const patient = await this.patientRepository.createAndSave({
+            const patient = await PatientController.patientRepository.createAndSave({
                 name,
-                uuid: this.generatePatientUUID(manchester_priority, priority),
+                uuid: PatientController.generatePatientUUID(manchester_priority, priority),
                 password,
                 phone_number,
                 partner_name,
@@ -54,7 +54,7 @@ export class PatientController {
             if (!uuid || !password)
                 return res.status(400).json({ message: "UUID e senha são obrigatórios." });
 
-            const patient = await this.patientRepository.findByUUID(uuid);
+            const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient || patient.password !== password)
                 return res.status(401).json({ message: "Credenciais inválidas." });
 
@@ -93,7 +93,7 @@ export class PatientController {
             if (req.patient)
                 filters.uuid = req.patient.uuid;
 
-            const patients = await this.patientRepository.findAll({ where: filters });
+            const patients = await PatientController.patientRepository.findAll({ where: filters });
             const sanitized = patients.map(p => {
                 const clone = { ...p };
                 delete clone.id;
@@ -118,7 +118,7 @@ export class PatientController {
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
-            const patient = await this.patientRepository.findByUUID(uuid);
+            const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient)
                 return res.status(404).json({ message: "Paciente não encontrado!" });
 
@@ -134,7 +134,7 @@ export class PatientController {
             if (state) patient.state = state;
             if (location) patient.location = location;
 
-            await this.patientRepository.save(patient);
+            await PatientController.patientRepository.save(patient);
             return res.status(204).send();
         } catch (e) {
             console.error("ERROR:", e);
@@ -148,11 +148,11 @@ export class PatientController {
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
-            const patient = await this.patientRepository.findByUUID(uuid);
+            const patient = await PatientController.patientRepository.findByUUID(uuid);
             if (!patient)
                 return res.status(404).json({ message: "Paciente não encontrado!" });
 
-            await this.patientRepository.remove(patient);
+            await PatientController.patientRepository.remove(patient);
             return res.status(204).send();
         } catch (e) {
             console.error("ERROR:", e);
@@ -162,7 +162,7 @@ export class PatientController {
 
     static async nextPatient(req: Request, res: Response): Promise<Response> {
         try {
-            const patients = await this.patientRepository.findAll();
+            const patients = await PatientController.patientRepository.findAll();
             const waiting = patients.filter(p => p.status === 'waiting');
 
             if (!waiting?.length || !patients?.length)

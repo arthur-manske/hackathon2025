@@ -15,11 +15,11 @@ export class UserController {
             if (!username || !password)
                 return res.status(400).json({ message: "Campos obrigatórios não fornecidos!" });
 
-            const existing = await this.userRepository.findByUsername(username);
+            const existing = await UserController.userRepository.findByUsername(username);
             if (existing)
                 return res.status(409).json({ message: "Usuário já existe." });
 
-            const user = await this.userRepository.createAndSave({
+            const user = await UserController.userRepository.createAndSave({
                 username,
                 password,
                 role: role ?? "regular"
@@ -40,7 +40,7 @@ export class UserController {
             if (!username || !password)
                 return res.status(400).json({ message: "Campos obrigatórios não fornecidos!" });
 
-            const user = await this.userRepository.findByUsername(username);
+            const user = await UserController.userRepository.findByUsername(username);
             if (!user) return res.status(401).json({ message: "Credenciais inválidas." });
 
             const match = await bcrypt.compare(password, user.password);
@@ -82,7 +82,7 @@ export class UserController {
             delete filters.password;
             delete filters.id;
 
-            const users = (await this.userRepository.findAll(filters));
+            const users = (await UserController.userRepository.findAll(filters));
             const sanitized = users.map(u => {
                 const clone = { ...u };
                 delete clone.id;
@@ -103,7 +103,7 @@ export class UserController {
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
-            const user = await this.userRepository.findByUUID(uuid);
+            const user = await UserController.userRepository.findByUUID(uuid);
             if (!user)
                 return res.status(404).json({ message: "Usuário não encontrado!" });
 
@@ -113,7 +113,7 @@ export class UserController {
             if (role) user.role = role;
 
             // não altera password no controller, TypeORM faz hash automático se houver
-            await this.userRepository.save(user);
+            await UserController.userRepository.save(user);
             return res.status(204).send();
         } catch (e) {
             console.error("ERROR:", e);
@@ -127,11 +127,11 @@ export class UserController {
                 return res.status(403).json({ message: "Acesso negado." });
 
             const { uuid } = req.params;
-            const user = await this.userRepository.findByUUID(uuid);
+            const user = await UserController.userRepository.findByUUID(uuid);
             if (!user)
                 return res.status(404).json({ message: "Usuário não encontrado!" });
 
-            await this.userRepository.remove(user);
+            await UserController.userRepository.remove(user);
             return res.status(204).send();
         } catch (e) {
             console.error("ERROR:", e);
