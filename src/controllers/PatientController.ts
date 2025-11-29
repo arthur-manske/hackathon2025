@@ -41,7 +41,7 @@ export class PatientController {
             });
 
             delete patient.id;
-            return res.status(201).json(patient);
+            return res.status(201).location("/patients/" + patient.uuid).send();
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -63,11 +63,7 @@ export class PatientController {
                 type: "patient"
             });
 
-            const response = { ...patient, token };
-            delete response.password;
-            delete response.id;
-
-            return res.status(200).json(response);
+            return res.status(200).json({token});
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -78,7 +74,7 @@ export class PatientController {
         try {
             if (!req.patient)
                 return res.status(403).json({ message: "Acesso negado." });
-            return res.status(200).json({ message: "Logout realizado com sucesso." });
+            return res.status(200).send();
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -88,24 +84,18 @@ export class PatientController {
     static async query(req: Request, res: Response): Promise<Response> {
         try {
             const filters: any = { ...req.query };
+
             delete filters.id;
 
-            if (req.patient)
-                filters.uuid = req.patient.uuid;
-
             const patients = await PatientController.patientRepository.findAll({ where: filters });
-            const sanitized = patients.map(p => {
-                const clone = { ...p };
-                delete clone.id;
-                delete clone.password;
+            
+            return res.status(200).json((await PatientController.patientRepository.findAll({where: filters})).map((p) => {
+                const clone: any = { uuid: p.uuid, name: p.name, status: p.status, manchester_prio: p.manchester_priority, specific_prio: p.priority, state: p.state, location: p.location };
                 if (!req.user && (!req.patient || req.patient.uuid !== clone.uuid)) {
-                    delete clone.state;
-                    delete clone.location;
+                    clone.state = clone.location = undefined;
                 }
                 return clone;
-            });
-
-            return res.status(200).json(sanitized);
+            }));
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });

@@ -25,9 +25,7 @@ export class UserController {
                 role: role ?? "regular"
             });
 
-            delete user.id;
-            delete user.password;
-            return res.status(201).json(user);
+            return res.status(201).location(`/users/${user.uuid}`).send();
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -52,11 +50,7 @@ export class UserController {
                 type: "user"
             });
 
-            const response = { ...user, token };
-            delete response.password;
-            delete response.id;
-
-            return res.status(200).json(response);
+            return res.status(200).json({token});
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -67,7 +61,7 @@ export class UserController {
         try {
             if (!req.user)
                 return res.status(403).json({ message: "Acesso negado." });
-            return res.status(200).json({ message: "Logout realizado com sucesso." });
+            return res.status(200).send();
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -82,15 +76,10 @@ export class UserController {
             delete filters.password;
             delete filters.id;
 
-            const users = (await UserController.userRepository.findAll(filters));
-            const sanitized = users.map(u => {
-                const clone = { ...u };
-                delete clone.id;
-                delete clone.password;
-                return clone;
-            });
-
-            return res.status(200).json(sanitized);
+            return res.status(200).json((await UserController.userRepository.findAll(filters)).map(u => {
+                const clean: any = { username: u.username, role: u.role };
+                return clean;
+            }));
         } catch (e) {
             console.error("ERROR:", e);
             return res.status(500).json({ message: "Erro interno no servidor." });
@@ -112,7 +101,6 @@ export class UserController {
             if (username) user.username = username;
             if (role) user.role = role;
 
-            // não altera password no controller, TypeORM faz hash automático se houver
             await UserController.userRepository.save(user);
             return res.status(204).send();
         } catch (e) {
