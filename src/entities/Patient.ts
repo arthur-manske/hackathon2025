@@ -31,14 +31,15 @@ export class Patient {
 		enum: ['waiting', 'registering', 'attending'] as const,
 		default: 'waiting'
 	})
-	public status!: 'waiting' | 'registering' | 'attending';
+	public status!: 'waiting' | 'attending';
 
 	@Column()
 	public description!: string;
 
 	@Column({
 		type: 'enum',
-		enum: ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent'] as const
+		enum: ['immediate', 'very-urgent', 'urgent', 'standard', 'non-urgent', 'undefined'] as const,
+		default: 'undefined'
 	})
 	public manchester_priority!: 'immediate' | 'very-urgent' | 'urgent' | 'standard' | 'non-urgent';
 
